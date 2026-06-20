@@ -1,0 +1,118 @@
+services:
+  postgres:
+    image: postgres:15-alpine
+    container_name: orchestrix-postgres
+    environment:
+      POSTGRES_DB: orchestrix
+      POSTGRES_USER: orchestrix
+      POSTGRES_PASSWORD: password
+    ports:
+      - "5435:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./db/init.sql:/docker-entrypoint-initdb.d/init.sql
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U orchestrix -d orchestrix"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  redis:
+    image: redis:7-alpine
+    container_name: orchestrix-redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  api1:
+    build:
+      context: .
+      dockerfile: Dockerfile.api
+    container_name: orchestrix-api1
+    environment:
+      DATABASE_URL: postgresql://orchestrix:password@postgres:5432/orchestrix
+      REDIS_URL: redis://redis:6379/0
+    ports:
+      - "8001:8001"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+
+  api2:
+    build:
+      context: .
+      dockerfile: Dockerfile.api
+    container_name: orchestrix-api2
+    environment:
+      DATABASE_URL: postgresql://orchestrix:password@postgres:5432/orchestrix
+      REDIS_URL: redis://redis:6379/0
+    ports:
+      - "8002:8001"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+
+  worker1:
+    build:
+      context: .
+      dockerfile: Dockerfile.worker
+    container_name: orchestrix-worker1
+    environment:
+      DATABASE_URL: postgresql://orchestrix:password@postgres:5432/orchestrix
+      REDIS_URL: redis://redis:6379/0
+      WORKER_THREADS: "4"
+      MAX_RETRIES: "3"
+      TASK_TIMEOUT: "30"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+
+  worker2:
+    build:
+      context: .
+      dockerfile: Dockerfile.worker
+    container_name: orchestrix-worker2
+    environment:
+      DATABASE_URL: postgresql://orchestrix:password@postgres:5432/orchestrix
+      REDIS_URL: redis://redis:6379/0
+      WORKER_THREADS: "4"
+      MAX_RETRIES: "3"
+      TASK_TIMEOUT: "30"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+
+  worker3:
+    build:
+      context: .
+      dockerfile: Dockerfile.worker
+    container_name: orchestrix-worker3
+    environment:
+      DATABASE_URL: postgresql://orchestrix:password@postgres:5432/orchestrix
+      REDIS_URL: redis://redis:6379/0
+      WORKER_THREADS: "4"
+      MAX_RETRIES: "3"
+      TASK_TIMEOUT: "30"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+
+volumes:
+  postgres_data:
+  redis_data:

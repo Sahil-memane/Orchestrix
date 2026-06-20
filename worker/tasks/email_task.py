@@ -1,0 +1,1 @@
+# Simulated email dispatch handler
