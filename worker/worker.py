@@ -3,10 +3,17 @@ import time
 import socket
 import traceback
 import signal
+import threading
+from concurrent.futures import ThreadPoolExecutor
 from datetime import datetime, timezone
 from api.database import SessionLocal, Task
 from api.redis_client import redis_client
 from worker.tasks import TASK_REGISTRY
+
+# Configuration from environment variables
+MAX_WORKERS = int(os.getenv("WORKER_THREADS", "4"))
+MAX_RETRIES = int(os.getenv("MAX_RETRIES", "3"))
+TASK_TIMEOUT = int(os.getenv("TASK_TIMEOUT", "30"))
 
 # Unique worker ID using hostname + process ID
 WORKER_ID = f"{socket.gethostname()}:{os.getpid()}"
@@ -20,7 +27,7 @@ def signal_handler(signum, frame):
     shutdown_flag = True
 
 def process_task(task_id: str):
-    """Core execution unit — runs synchronously in the main thread."""
+    """Core execution unit — runs inside a ThreadPoolExecutor thread."""
     db = SessionLocal()
     try:
         task = db.query(Task).filter(Task.id == task_id).first()
@@ -42,17 +49,18 @@ def process_task(task_id: str):
         if not handler:
             raise ValueError(f"No handler registered for task type: {task.type}")
 
-        # 3. Execute synchronously
-        try:
-            result = handler(task.payload)
-        except Exception as e:
-            print(f"[Worker {WORKER_ID}] Handler failed for task {task_id}: {str(e)}")
-            task.status = "failed"
-            task.error = f"{str(e)}\n{traceback.format_exc()}"
-            task.completed_at = datetime.now(timezone.utc)
-            db.commit()
-            redis_client.set(f"task:{task_id}:status", "failed")
-            return
+        # 3. Execute with timeout using a nested ThreadPoolExecutor
+        import concurrent.futures
+        with concurrent.futures.ThreadPoolExecutor(max_workers=1) as tex:
+            future = tex.submit(handler, task.payload)
+            try:
+                result = future.result(timeout=TASK_TIMEOUT)
+            except concurrent.futures.TimeoutError:
+                _handle_failure(db, task, f"Task timed out after {TASK_TIMEOUT}s")
+                return
+            except Exception as e:
+                _handle_failure(db, task, f"{str(e)}\n{traceback.format_exc()}")
+                return
 
         # 4. Mark COMPLETED
         task.status = "completed"
@@ -67,6 +75,32 @@ def process_task(task_id: str):
     finally:
         db.close()
 
+def _handle_failure(db, task, error_msg: str):
+    """Handle failure with exponential backoff retry."""
+    task_id = str(task.id)
+    if task.retry_count < MAX_RETRIES:
+        delay = 2 ** task.retry_count  # 1s, 2s, 4s
+        print(f"[Worker {WORKER_ID}] Task {task_id} failed. Retrying in {delay}s (attempt {task.retry_count + 1}/{MAX_RETRIES})...")
+        time.sleep(delay)
+        task.status = "retrying"
+        task.retry_count += 1
+        db.commit()
+        redis_client.set(f"task:{task_id}:status", "retrying")
+        redis_client.rpush(f"task:queue:{task.priority}", task_id)
+    else:
+        print(f"[Worker {WORKER_ID}] Task {task_id} FAILED after {MAX_RETRIES} retries. Error: {error_msg[:100]}")
+        task.status = "failed"
+        task.error = error_msg
+        task.completed_at = datetime.now(timezone.utc)
+        db.commit()
+        redis_client.set(f"task:{task_id}:status", "failed")
+
+def process_task_wrapper(task_id: str, semaphore: threading.Semaphore):
+    try:
+        process_task(task_id)
+    finally:
+        semaphore.release()
+
 def main():
     global shutdown_flag
 
@@ -74,27 +108,40 @@ def main():
     signal.signal(signal.SIGINT, signal_handler)
     signal.signal(signal.SIGTERM, signal_handler)
 
-    print(f"[Worker {WORKER_ID}] Starting single-threaded worker. Listening for tasks...")
+    print(f"[Worker {WORKER_ID}] Starting with {MAX_WORKERS} threads. Listening for tasks...")
 
     queues = ["task:queue:high", "task:queue:default", "task:queue:low"]
 
-    while not shutdown_flag:
-        try:
-            # BLPOP respects key order: high → default → low
-            result = redis_client.blpop(queues, timeout=5)
-            if result is None:
-                continue  # Timeout — loop back and check shutdown flag
+    semaphore = threading.Semaphore(MAX_WORKERS)
 
-            queue_name, task_id = result
-            print(f"[Worker {WORKER_ID}] Dequeued {task_id} from {queue_name}")
+    with ThreadPoolExecutor(max_workers=MAX_WORKERS) as executor:
+        while not shutdown_flag:
+            # Rate limit popping: only pop if we have thread capacity
+            acquired = False
+            while not shutdown_flag and not acquired:
+                acquired = semaphore.acquire(blocking=True, timeout=1)
 
-            # Process task synchronously
-            process_task(task_id)
+            if not acquired:
+                continue
 
-        except Exception as e:
-            if not shutdown_flag:
-                print(f"[Worker {WORKER_ID}] Error in main loop: {str(e)}")
-                time.sleep(1)
+            try:
+                # BLPOP respects key order: high → default → low
+                result = redis_client.blpop(queues, timeout=5)
+                if result is None:
+                    semaphore.release()
+                    continue  # Timeout — loop back and check shutdown flag
+
+                queue_name, task_id = result
+                print(f"[Worker {WORKER_ID}] Dequeued {task_id} from {queue_name}")
+
+                # Submit to thread pool — non-blocking
+                executor.submit(process_task_wrapper, task_id, semaphore)
+
+            except Exception as e:
+                semaphore.release()
+                if not shutdown_flag:
+                    print(f"[Worker {WORKER_ID}] Error in main loop: {str(e)}")
+                    time.sleep(1)
 
     print(f"[Worker {WORKER_ID}] Worker shut down gracefully.")
 
