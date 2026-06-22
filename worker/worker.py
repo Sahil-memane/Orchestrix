@@ -26,6 +26,21 @@ def signal_handler(signum, frame):
     print(f"\n[Worker {WORKER_ID}] Received signal {signum}. Initiating graceful shutdown...")
     shutdown_flag = True
 
+def heartbeat_loop():
+    """Runs in a background thread to update the worker heartbeat every 5s."""
+    print(f"[Worker {WORKER_ID}] Heartbeat thread started.")
+    while not shutdown_flag:
+        try:
+            heartbeat_key = f"worker:{WORKER_ID}:heartbeat"
+            redis_client.set(heartbeat_key, int(time.time()), ex=60)
+        except Exception as e:
+            print(f"[Worker {WORKER_ID}] Failed to emit heartbeat: {e}")
+        for _ in range(50):
+            if shutdown_flag:
+                break
+            time.sleep(0.1)
+    print(f"[Worker {WORKER_ID}] Heartbeat thread exiting.")
+
 def process_task(task_id: str):
     """Core execution unit — runs inside a ThreadPoolExecutor thread."""
     db = SessionLocal()
@@ -39,7 +54,8 @@ def process_task(task_id: str):
 
         # 1. Mark as PROCESSING in DB and Redis
         task.status = "processing"
-        task.started_at = datetime.now(timezone.utc)
+        if not task.started_at:
+            task.started_at = datetime.now(timezone.utc)
         task.worker_id = WORKER_ID
         db.commit()
         redis_client.set(f"task:{task_id}:status", "processing")
@@ -109,6 +125,10 @@ def main():
     signal.signal(signal.SIGTERM, signal_handler)
 
     print(f"[Worker {WORKER_ID}] Starting with {MAX_WORKERS} threads. Listening for tasks...")
+
+    # Start the heartbeat thread as daemon
+    heartbeat_thread = threading.Thread(target=heartbeat_loop, daemon=True)
+    heartbeat_thread.start()
 
     queues = ["task:queue:high", "task:queue:default", "task:queue:low"]
 

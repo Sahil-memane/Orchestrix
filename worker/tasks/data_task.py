@@ -2,6 +2,9 @@ import time
 import random
 
 def transform_data(payload):
+    if payload.get("should_fail"):
+        raise ValueError("Deliberate task failure for retry verification")
+
     # Simulate processing duration
     sleep_time = random.uniform(1.0, 3.0)
     time.sleep(sleep_time)
