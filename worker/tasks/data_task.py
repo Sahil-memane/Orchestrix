@@ -6,7 +6,7 @@ def transform_data(payload):
         raise ValueError("Deliberate task failure for retry verification")
 
     # Simulate processing duration
-    sleep_time = random.uniform(1.0, 3.0)
+    sleep_time = payload.get("sleep_seconds", random.uniform(1.0, 3.0))
     time.sleep(sleep_time)
     
     # Process payload

@@ -1,4 +1,5 @@
-from fastapi import FastAPI, Depends
+import os
+from fastapi import FastAPI, Depends, Request
 from fastapi.responses import JSONResponse
 import sqlalchemy as sa
 from sqlalchemy.orm import Session
@@ -11,6 +12,14 @@ app = FastAPI(
     description="Distributed Task Execution System API",
     version="1.0"
 )
+
+API_INSTANCE_NAME = os.getenv("API_INSTANCE_NAME", "unknown")
+
+@app.middleware("http")
+async def add_instance_header(request: Request, call_next):
+    response = await call_next(request)
+    response.headers["X-Instance-Name"] = API_INSTANCE_NAME
+    return response
 
 # Include routers
 app.include_router(tasks.router, prefix="/tasks", tags=["tasks"])

@@ -66,17 +66,22 @@ def process_task(task_id: str):
             raise ValueError(f"No handler registered for task type: {task.type}")
 
         # 3. Execute with timeout using a nested ThreadPoolExecutor
+        # Note: We manually instantiate and call shutdown(wait=False) on error/timeout
+        # to prevent the worker thread from hanging at the end of a 'with' block context.
         import concurrent.futures
-        with concurrent.futures.ThreadPoolExecutor(max_workers=1) as tex:
-            future = tex.submit(handler, task.payload)
-            try:
-                result = future.result(timeout=TASK_TIMEOUT)
-            except concurrent.futures.TimeoutError:
-                _handle_failure(db, task, f"Task timed out after {TASK_TIMEOUT}s")
-                return
-            except Exception as e:
-                _handle_failure(db, task, f"{str(e)}\n{traceback.format_exc()}")
-                return
+        tex = concurrent.futures.ThreadPoolExecutor(max_workers=1)
+        future = tex.submit(handler, task.payload)
+        try:
+            result = future.result(timeout=TASK_TIMEOUT)
+            tex.shutdown(wait=False)
+        except concurrent.futures.TimeoutError:
+            tex.shutdown(wait=False)
+            _handle_failure(db, task, f"Task timed out after {TASK_TIMEOUT}s")
+            return
+        except Exception as e:
+            tex.shutdown(wait=False)
+            _handle_failure(db, task, f"{str(e)}\n{traceback.format_exc()}")
+            return
 
         # 4. Mark COMPLETED
         task.status = "completed"
