@@ -1,3 +1,4 @@
 docs/
 scripts/
 .env
+dashboard/node_modules/

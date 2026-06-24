@@ -59,6 +59,21 @@ def process_task(task_id: str):
         task.worker_id = WORKER_ID
         db.commit()
         redis_client.set(f"task:{task_id}:status", "processing")
+        
+        # Publish event
+        import json
+        event_data = {
+            "task_id": task_id,
+            "type": task.type,
+            "priority": task.priority,
+            "status": "processing",
+            "worker_id": WORKER_ID,
+            "retry_count": task.retry_count,
+            "created_at": task.created_at.isoformat() if task.created_at else None,
+            "started_at": task.started_at.isoformat() if task.started_at else None,
+            "completed_at": None
+        }
+        redis_client.publish("orchestrix:task_updates", json.dumps(event_data))
 
         # 2. Get handler from registry
         handler = TASK_REGISTRY.get(task.type)
@@ -89,6 +104,22 @@ def process_task(task_id: str):
         task.completed_at = datetime.now(timezone.utc)
         db.commit()
         redis_client.set(f"task:{task_id}:status", "completed")
+        
+        # Publish event
+        import json
+        event_data = {
+            "task_id": task_id,
+            "type": task.type,
+            "priority": task.priority,
+            "status": "completed",
+            "worker_id": WORKER_ID,
+            "retry_count": task.retry_count,
+            "created_at": task.created_at.isoformat() if task.created_at else None,
+            "started_at": task.started_at.isoformat() if task.started_at else None,
+            "completed_at": task.completed_at.isoformat() if task.completed_at else None,
+            "result": result
+        }
+        redis_client.publish("orchestrix:task_updates", json.dumps(event_data))
         print(f"[Worker {WORKER_ID}] Task {task_id} COMPLETED.")
 
     except Exception as e:
@@ -108,6 +139,21 @@ def _handle_failure(db, task, error_msg: str):
         db.commit()
         redis_client.set(f"task:{task_id}:status", "retrying")
         redis_client.rpush(f"task:queue:{task.priority}", task_id)
+        
+        # Publish event
+        import json
+        event_data = {
+            "task_id": task_id,
+            "type": task.type,
+            "priority": task.priority,
+            "status": "retrying",
+            "worker_id": WORKER_ID,
+            "retry_count": task.retry_count,
+            "created_at": task.created_at.isoformat() if task.created_at else None,
+            "started_at": task.started_at.isoformat() if task.started_at else None,
+            "completed_at": None
+        }
+        redis_client.publish("orchestrix:task_updates", json.dumps(event_data))
     else:
         print(f"[Worker {WORKER_ID}] Task {task_id} FAILED after {MAX_RETRIES} retries. Error: {error_msg[:100]}")
         task.status = "failed"
@@ -115,6 +161,22 @@ def _handle_failure(db, task, error_msg: str):
         task.completed_at = datetime.now(timezone.utc)
         db.commit()
         redis_client.set(f"task:{task_id}:status", "failed")
+        
+        # Publish event
+        import json
+        event_data = {
+            "task_id": task_id,
+            "type": task.type,
+            "priority": task.priority,
+            "status": "failed",
+            "worker_id": WORKER_ID,
+            "retry_count": task.retry_count,
+            "created_at": task.created_at.isoformat() if task.created_at else None,
+            "started_at": task.started_at.isoformat() if task.started_at else None,
+            "completed_at": task.completed_at.isoformat() if task.completed_at else None,
+            "error": error_msg
+        }
+        redis_client.publish("orchestrix:task_updates", json.dumps(event_data))
 
 def process_task_wrapper(task_id: str, semaphore: threading.Semaphore):
     try:

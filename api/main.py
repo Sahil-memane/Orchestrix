@@ -1,6 +1,7 @@
 import os
 from fastapi import FastAPI, Depends, Request
 from fastapi.responses import JSONResponse
+from fastapi.middleware.cors import CORSMiddleware
 import sqlalchemy as sa
 from sqlalchemy.orm import Session
 from api.database import get_db, Base, engine
@@ -11,6 +12,14 @@ app = FastAPI(
     title="Orchestrix API",
     description="Distributed Task Execution System API",
     version="1.0"
+)
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=False,
+    allow_methods=["*"],
+    allow_headers=["*"],
 )
 
 API_INSTANCE_NAME = os.getenv("API_INSTANCE_NAME", "unknown")

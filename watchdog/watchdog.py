@@ -38,6 +38,21 @@ def recover_worker_tasks(db, worker_id):
         redis_client.rpush(queue_key, task_id)
         print(f"[Watchdog] Task {task_id} (priority={task.priority}) re-queued to {queue_key}")
         
+        # Publish event
+        import json
+        event_data = {
+            "task_id": task_id,
+            "type": task.type,
+            "priority": task.priority,
+            "status": "pending",
+            "worker_id": None,
+            "retry_count": task.retry_count,
+            "created_at": task.created_at.isoformat() if task.created_at else None,
+            "started_at": None,
+            "completed_at": None
+        }
+        redis_client.publish("orchestrix:task_updates", json.dumps(event_data))
+        
     db.commit()
 
 def check_stale_workers():

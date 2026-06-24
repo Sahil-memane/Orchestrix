@@ -1,0 +1,1034 @@
+/* ORCHESTRIX Hearthy-Inspired Modern Design System */
+
+:root {
+  /* Colors - Glassmorphism Transparent Greyish Windows UI */
+  --bg-primary: #050607;       /* Dark canvas fallback */
+  --bg-secondary: rgba(10, 12, 15, 0.4); /* Glass base */
+  --bg-card: rgba(15, 18, 22, 0.45);      /* Transparent card background */
+  --bg-input: rgba(255, 255, 255, 0.03);     /* Transparent input background */
+  --text-primary: #ffffff;     /* White primary text */
+  --text-secondary: #cbd5e1;   /* Light grey secondary text */
+  --text-muted: #64748b;       /* Slate muted text */
+  --border: rgba(255, 255, 255, 0.07); /* Subtle light border of the windows */
+  
+  --accent: #2563eb;           /* Modern clean blue accent */
+  --accent-glow: rgba(37, 99, 235, 0.1);
+  --accent-hover: #1d4ed8;
+  --accent-light: #eff6ff;
+
+  /* Status Colors (Light-mode compatible high contrast) */
+  --status-pending: #b7770d;         /* Dark Amber */
+  --status-pending-glow: #fff8ee;
+  
+  --status-processing: #2563eb;      /* Blue */
+  --status-processing-glow: #eff6ff;
+  
+  --status-completed: #1a7a4a;      /* Dark Emerald */
+  --status-completed-glow: #f0faf2;
+  
+  --status-failed: #c0392b;         /* Dark Red */
+  --status-failed-glow: #fff5f5;
+  
+  --status-retrying: #4338ca;       /* Dark Purple */
+  --status-retrying-glow: #eef2ff;
+  
+  --status-cancelled: #4b5563;
+
+  /* Task Type Colors */
+  --tag-image: #00695c;
+  --tag-email: #9d174d;
+  --tag-data: #3730a3;
+
+  /* Border Radii (Clean, defined rounded corners) */
+  --radius-sm: 6px;
+  --radius-md: 10px;
+  --radius-lg: 12px;
+  --radius-xl: 16px;
+  --radius-full: 9999px;
+
+  /* Fonts */
+  --font-sans: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
+  --font-mono: 'JetBrains Mono', monospace;
+  
+  /* Constants */
+  --header-height: 60px;
+  --transition-smooth: all 0.15s ease-in-out;
+}
+
+/* Base Setup */
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: var(--font-sans);
+  background: linear-gradient(135deg, #0d0f12 0%, #040507 100%) fixed;
+  color: var(--text-primary);
+  min-height: 100vh;
+  line-height: 1.5;
+  overflow-x: hidden;
+  transition: background-color 0.4s ease, color 0.4s ease;
+}
+
+/* Scrollbar Customization */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: #090a0d;
+}
+::-webkit-scrollbar-thumb {
+  background: var(--border);
+  border-radius: var(--radius-full);
+}
+::-webkit-scrollbar-thumb:hover {
+  background: var(--text-muted);
+}
+
+/* Core Animations */
+@keyframes pulseGlow {
+  0%, 100% { transform: scale(1); opacity: 1; filter: drop-shadow(0 0 2px currentColor); }
+  50% { transform: scale(1.1); opacity: 0.7; filter: drop-shadow(0 0 8px currentColor); }
+}
+
+@keyframes borderPulse {
+  0%, 100% { border-color: rgba(239, 68, 68, 0.4); }
+  50% { border-color: rgba(239, 68, 68, 0.8); }
+}
+
+@keyframes progress-bar-stripes {
+  from { background-position: 1rem 0; }
+  to { background-position: 0 0; }
+}
+
+@keyframes slideIn {
+  from { opacity: 0; transform: translateY(16px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes float {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-4px); }
+}
+
+/* Animations Classes */
+.live-pulse {
+  animation: pulseGlow 2s infinite ease-in-out;
+}
+
+.float-effect {
+  animation: float 4s infinite ease-in-out;
+}
+
+/* Glassmorphism Header */
+.header {
+  height: var(--header-height);
+  background: linear-gradient(180deg, rgba(20, 22, 26, 0.8) 0%, rgba(13, 15, 18, 0.85) 100%);
+  backdrop-filter: blur(20px);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  position: sticky;
+  top: 0;
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 32px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+  transition: var(--transition-smooth);
+}
+
+/* App Grid Container */
+.dashboard-layout {
+  max-width: 1800px;
+  margin: 0 auto;
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  min-height: calc(100vh - var(--header-height));
+  background-color: transparent;
+}
+
+/* Sidebar Widgets Layout */
+.sidebar-panel {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+/* Premium Card Components */
+.neon-card {
+  background: linear-gradient(135deg, rgba(18, 20, 26, 0.7) 0%, rgba(8, 10, 12, 0.8) 100%);
+  backdrop-filter: blur(16px);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  border-top: 1px solid rgba(255, 255, 255, 0.15);
+  border-radius: var(--radius-lg);
+  padding: 24px;
+  box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.45);
+  transition: var(--transition-smooth);
+  position: relative;
+  overflow: hidden;
+}
+
+/* Premium Hover lifting */
+.neon-card-interactive {
+  cursor: pointer;
+}
+.neon-card-interactive:hover {
+  transform: translateY(-2px);
+  border-color: var(--accent);
+}
+
+/* Status specific top glow bars */
+.glow-top-pending { border-top: 4px solid var(--status-pending); }
+.glow-top-processing { border-top: 4px solid var(--status-processing); }
+.glow-top-completed { border-top: 4px solid var(--status-completed); }
+.glow-top-failed { border-top: 4px solid var(--status-failed); }
+
+/* Forms & Inputs */
+.neon-label {
+  display: block;
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  margin-bottom: 6px;
+}
+
+.neon-input {
+  width: 100%;
+  padding: 10px 14px;
+  border-radius: var(--radius-sm);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  background: rgba(255, 255, 255, 0.05);
+  color: var(--text-primary);
+  font-family: var(--font-sans);
+  font-size: 13px;
+  outline: none;
+  transition: var(--transition-smooth);
+}
+.neon-input option {
+  background-color: #15171a;
+  color: #ffffff;
+}
+
+.neon-input:focus {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px var(--accent-light);
+}
+
+/* Premium Buttons */
+.neon-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 10px 18px;
+  font-size: 13px;
+  font-weight: 700;
+  border-radius: var(--radius-full);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  cursor: pointer;
+  outline: none;
+  transition: var(--transition-smooth);
+}
+
+.neon-btn-primary {
+  background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
+  color: #ffffff;
+  border-color: rgba(255, 255, 255, 0.1);
+}
+.neon-btn-primary:hover {
+  background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+  box-shadow: 0 0 12px rgba(59, 130, 246, 0.4);
+  color: #ffffff;
+}
+.neon-btn-primary:active {
+  transform: translateY(0);
+}
+
+.neon-btn-secondary {
+  background: rgba(255, 255, 255, 0.08);
+  color: #ffffff;
+  border-color: rgba(255, 255, 255, 0.12);
+}
+.neon-btn-secondary:hover {
+  background: rgba(255, 255, 255, 0.15);
+  color: #ffffff;
+  border-color: rgba(255, 255, 255, 0.2);
+}
+
+.kanban-grid {
+  display: grid;
+  grid-template-columns: 1.1fr 1.1fr 1.1fr 0.7fr;
+  gap: 20px;
+  align-items: stretch;
+}
+
+@media (max-width: 1000px) {
+  .kanban-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+@media (max-width: 600px) {
+  .kanban-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.kanban-pane {
+  background: linear-gradient(135deg, rgba(12, 14, 18, 0.75) 0%, rgba(6, 7, 9, 0.85) 100%);
+  backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.05); 
+  border-radius: var(--radius-lg);
+  padding: 12px 14px;
+  min-height: 330px;
+  height: 330px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  transition: var(--transition-smooth);
+}
+
+.kanban-pane-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-bottom: 6px;
+  border-bottom: 1px solid var(--border);
+}
+
+.pane-title {
+  font-size: 13px;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.pane-count-badge {
+  font-size: 11px;
+  font-weight: 700;
+  background-color: var(--border);
+  padding: 2px 10px;
+  border-radius: var(--radius-full);
+  color: var(--text-secondary);
+}
+
+/* Task Cards inside Kanban Columns */
+.task-wrapper {
+  animation: slideIn 0.35s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  flex-shrink: 0;
+  flex-grow: 0;
+  flex: none;
+}
+
+.professional-task-card {
+  background: rgba(255, 255, 255, 0.02) !important;
+  backdrop-filter: blur(16px);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: var(--radius-md);
+  padding: 8px 10px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+  transition: var(--transition-smooth);
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  position: relative;
+  overflow: hidden;
+  border-left: 5px solid var(--border); /* Left status border indicator */
+  flex: none;
+  height: auto;
+}
+
+.professional-task-card:hover {
+  transform: translateY(-2px);
+  border-color: rgba(255, 255, 255, 0.2);
+  background: rgba(255, 255, 255, 0.06) !important;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
+}
+
+/* Left-accent colors for task cards depending on execution state */
+.task-border-pending { border-left-color: #fbbf24 !important; }
+.task-border-processing { border-left-color: #3b82f6 !important; }
+.task-border-completed { border-left-color: #10b981 !important; }
+.task-border-failed { border-left-color: #ef4444 !important; }
+.task-border-retrying { border-left-color: #8b5cf6 !important; }
+
+.task-header-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.task-title-text {
+  font-size: 13px;
+  font-weight: 800;
+  color: #ffffff;
+  letter-spacing: -0.2px;
+}
+
+.task-id-tag {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  color: #cbd5e1;
+  font-weight: 600;
+}
+
+.task-payload-box {
+  font-size: 11px;
+  color: #e2e8f0;
+  background-color: rgba(0, 0, 0, 0.25);
+  padding: 4px 8px;
+  border-radius: var(--radius-sm);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  line-height: 1.4;
+  word-break: break-all;
+}
+
+.task-footer-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 10px;
+  color: #cbd5e1;
+  border-top: 1px solid rgba(255, 255, 255, 0.12);
+  padding-top: 6px;
+  margin-top: 0px;
+}
+
+.task-node-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-family: var(--font-mono);
+  font-size: 10px;
+  color: #ffffff;
+  background-color: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  padding: 2px 6px;
+  border-radius: 4px;
+  font-weight: 600;
+}
+
+/* Visual Badges */
+.badge-pill {
+  font-size: 10px;
+  font-weight: 700;
+  padding: 3px 10px;
+  border-radius: var(--radius-full);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  display: inline-flex;
+  align-items: center;
+  border: 1px solid transparent;
+}
+
+.badge-high {
+  background-color: rgba(239, 68, 68, 0.15);
+  color: #f87171;
+  border: 1px solid rgba(248, 113, 113, 0.4);
+}
+.badge-default {
+  background-color: rgba(251, 191, 36, 0.15);
+  color: #fbbf24;
+  border: 1px solid rgba(251, 191, 36, 0.4);
+}
+.badge-low {
+  background-color: rgba(59, 130, 246, 0.15);
+  color: #60a5fa;
+  border: 1px solid rgba(96, 165, 250, 0.4);
+}
+
+/* Task Types */
+.tag-image {
+  background-color: rgba(20, 184, 166, 0.15);
+  color: #2dd4bf;
+  border: 1px solid rgba(45, 212, 191, 0.4);
+}
+.tag-email {
+  background-color: rgba(236, 72, 153, 0.15);
+  color: #f472b6;
+  border: 1px solid rgba(244, 114, 182, 0.4);
+}
+.tag-data {
+  background-color: rgba(99, 102, 241, 0.15);
+  color: #818cf8;
+  border: 1px solid rgba(129, 140, 248, 0.4);
+}
+
+/* Retro Sci-fi Telemetry Terminal Console */
+.telemetry-console {
+  background-color: #030712;
+  color: #10B981;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  padding: 12px 16px;
+  border-radius: var(--radius-md);
+  border: 1px solid rgba(16, 185, 129, 0.25);
+  height: 150px;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  box-shadow: inset 0 2px 8px rgba(0,0,0,0.8);
+  position: relative;
+}
+
+.console-text {
+  line-height: 1.6;
+  text-shadow: 0 0 2px rgba(16, 185, 129, 0.3);
+}
+
+.console-ts {
+  color: #047857;
+  margin-right: 10px;
+  font-weight: bold;
+}
+
+.text-success { color: #34D399; text-shadow: 0 0 4px rgba(52, 211, 153, 0.4); }
+.text-error { color: #F87171; text-shadow: 0 0 4px rgba(248, 113, 113, 0.4); }
+.text-warning { color: #FBBF24; text-shadow: 0 0 4px rgba(251, 191, 36, 0.4); }
+.text-info { color: #60A5FA; text-shadow: 0 0 4px rgba(96, 165, 250, 0.4); }
+
+/* Top Row Status Cards */
+.metrics-row {
+  display: grid;
+  grid-template-columns: repeat(8, 1fr);
+  gap: 16px;
+  margin-bottom: 0px;
+}
+
+@media (max-width: 1400px) {
+  .metrics-row {
+    grid-template-columns: repeat(4, 1fr);
+  }
+}
+
+@media (max-width: 800px) {
+  .metrics-row {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+.stat-widget {
+  background: linear-gradient(135deg, rgba(18, 20, 26, 0.75) 0%, rgba(8, 10, 12, 0.8) 100%);
+  backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  border-radius: 16px;
+  padding: 8px 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3);
+  transition: var(--transition-smooth);
+}
+
+.stat-widget:hover {
+  transform: translateY(-2px);
+  border-color: var(--accent);
+}
+
+.hearthy-card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0 2px;
+}
+
+.hearthy-card-title {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-secondary);
+  font-family: var(--font-sans);
+}
+
+.hearthy-card-dots {
+  color: var(--text-muted);
+  font-size: 14px;
+  font-weight: bold;
+  cursor: pointer;
+  line-height: 1;
+}
+
+.hearthy-card-body {
+  background: rgba(10, 11, 14, 0.5);
+  border-radius: 12px;
+  padding: 8px 12px;
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 8px;
+}
+
+.hearthy-card-value {
+  font-size: 28px;
+  font-weight: 800;
+  color: var(--text-primary);
+  line-height: 1.1;
+  letter-spacing: -0.5px;
+}
+
+.hearthy-card-status-col {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 4px;
+}
+
+.hearthy-card-badge {
+  font-size: 10px;
+  font-weight: 700;
+  padding: 4px 10px;
+  border-radius: var(--radius-full);
+  white-space: nowrap;
+}
+
+/* Badge variants matching Hearthy */
+.hearthy-badge-red {
+  background-color: rgba(239, 68, 68, 0.2);
+  color: #ff8787 !important;
+  border: 1px solid rgba(239, 68, 68, 0.45);
+}
+.hearthy-badge-green {
+  background-color: rgba(16, 185, 129, 0.2);
+  color: #34d399 !important;
+  border: 1px solid rgba(52, 211, 153, 0.45);
+}
+.hearthy-badge-blue {
+  background-color: rgba(59, 130, 246, 0.2);
+  color: #60a5fa !important;
+  border: 1px solid rgba(96, 165, 250, 0.45);
+}
+.hearthy-badge-gray {
+  background-color: rgba(156, 163, 175, 0.2);
+  color: #e5e7eb !important;
+  border: 1px solid rgba(156, 163, 175, 0.45);
+}
+
+.hearthy-card-subtext {
+  font-size: 10px;
+  color: var(--text-muted);
+  white-space: nowrap;
+}
+
+/* Worker Cards list */
+.worker-flex {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.worker-row {
+  padding: 8px 12px;
+  background: rgba(10, 11, 14, 0.5);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  border-radius: var(--radius-md);
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 4px;
+  transition: var(--transition-smooth);
+}
+
+.worker-row:hover {
+  border-color: var(--accent);
+  background: rgba(30, 34, 42, 0.6);
+  box-shadow: none;
+}
+
+.worker-label-id {
+  font-size: 11px;
+  font-weight: 700;
+  font-family: var(--font-mono);
+  color: var(--text-primary);
+}
+
+.worker-details-meta {
+  font-size: 10px;
+  color: var(--text-muted);
+}
+
+/* Bottom Row Grid */
+.bottom-row {
+  display: grid;
+  grid-template-columns: 1fr 696px;
+  gap: 16px;
+  height: 240px;
+  align-items: stretch;
+}
+
+@media (max-width: 1200px) {
+  .bottom-row {
+    grid-template-columns: 1fr;
+    height: auto;
+  }
+}
+
+/* Worker Status Effects */
+.worker-overloaded {
+  border-color: rgba(239, 68, 68, 0.4) !important;
+  background: linear-gradient(135deg, rgba(239, 68, 68, 0.08) 0%, rgba(255, 255, 255, 0.01) 100%) !important;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25) !important;
+  animation: borderPulse 2s infinite ease-in-out !important;
+}
+
+.worker-unavailable {
+  opacity: 0.4;
+  filter: grayscale(100%);
+  border-style: dashed !important;
+}
+
+/* Progress bar for worker utilization */
+.worker-bar-container {
+  width: 100%;
+  height: 5px;
+  background-color: var(--border);
+  border-radius: var(--radius-full);
+  overflow: hidden;
+  margin-top: 4px;
+}
+
+.worker-bar-fill {
+  height: 100%;
+  background-color: var(--status-completed);
+  transition: width 0.3s ease;
+}
+
+.worker-bar-fill.warning {
+  background-color: var(--status-pending);
+}
+
+.worker-bar-fill.danger {
+  background-image: linear-gradient(
+    45deg,
+    rgba(255, 255, 255, 0.15) 25%,
+    transparent 25%,
+    transparent 50%,
+    rgba(255, 255, 255, 0.15) 50%,
+    rgba(255, 255, 255, 0.15) 75%,
+    transparent 75%,
+    transparent
+  );
+  background-size: 1rem 1rem;
+  animation: progress-bar-stripes 1s linear infinite;
+  background-color: var(--status-failed);
+}
+
+/* Bulk dispatch controls */
+.bulk-btn-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 8px;
+  margin-bottom: 12px;
+}
+
+/* Task details elapsed timer text */
+.elapsed-timer {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  font-weight: bold;
+}
+
+/* Navigation Tabs in Header */
+.nav-tabs {
+  display: flex;
+  gap: 4px;
+  background: rgba(255, 255, 255, 0.05);
+  padding: 4px;
+  border-radius: var(--radius-full);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.nav-tab {
+  background: transparent;
+  border: none;
+  color: #94a3b8;
+  font-family: var(--font-sans);
+  font-size: 13px;
+  font-weight: 700;
+  padding: 6px 18px;
+  border-radius: var(--radius-full);
+  cursor: pointer;
+  transition: var(--transition-smooth);
+}
+
+.nav-tab:hover {
+  color: #ffffff;
+}
+
+.nav-tab-active {
+  color: #ffffff !important;
+  background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%) !important;
+  border: 1px solid rgba(255, 255, 255, 0.2) !important;
+  box-shadow: 0 2px 10px rgba(59, 130, 246, 0.3) !important;
+}
+
+/* Diagram Adaptive Badges */
+.diag-badge-green { fill: rgba(52, 211, 153, 0.08); stroke: rgba(52, 211, 153, 0.25); }
+.diag-badge-green-text { fill: #34D399; font-weight: 600; }
+[data-theme="light"] .diag-badge-green { fill: #f0faf2; stroke: #c3e6cb; }
+[data-theme="light"] .diag-badge-green-text { fill: #1a7a4a; }
+
+.diag-badge-teal { fill: rgba(6, 182, 212, 0.08); stroke: rgba(6, 182, 212, 0.25); }
+.diag-badge-teal-text { fill: #22d3ee; font-weight: 600; }
+[data-theme="light"] .diag-badge-teal { fill: #e0f4f4; stroke: #80cbc4; }
+[data-theme="light"] .diag-badge-teal-text { fill: #00695c; }
+
+.diag-badge-red { fill: rgba(248, 113, 113, 0.08); stroke: rgba(248, 113, 113, 0.25); }
+.diag-badge-red-text { fill: #f87171; font-weight: 600; }
+[data-theme="light"] .diag-badge-red { fill: #fff5f5; stroke: #e74c3c; }
+[data-theme="light"] .diag-badge-red-text { fill: #c0392b; }
+
+.diag-badge-orange { fill: rgba(251, 191, 36, 0.08); stroke: rgba(251, 191, 36, 0.25); }
+.diag-badge-orange-text { fill: #fbbf24; font-weight: 600; }
+[data-theme="light"] .diag-badge-orange { fill: #fff8ee; stroke: #f5cba7; }
+[data-theme="light"] .diag-badge-orange-text { fill: #b7770d; }
+
+.diag-badge-indigo { fill: rgba(129, 140, 248, 0.08); stroke: rgba(129, 140, 248, 0.25); }
+.diag-badge-indigo-text { fill: #818cf8; font-weight: 600; }
+[data-theme="light"] .diag-badge-indigo { fill: #eef2ff; stroke: #c7d2fe; }
+[data-theme="light"] .diag-badge-indigo-text { fill: #4338ca; }
+
+.diag-badge-grey { fill: rgba(156, 163, 175, 0.08); stroke: rgba(156, 163, 175, 0.25); }
+.diag-badge-grey-text { fill: #9ca3af; font-weight: 600; }
+[data-theme="light"] .diag-badge-grey { fill: #f2f3f3; stroke: #d5dbdb; }
+[data-theme="light"] .diag-badge-grey-text { fill: #16191f; }
+
+/* SVG Markers and Tooltips */
+.diagram-marker {
+  cursor: pointer;
+}
+.diagram-marker circle {
+  fill: var(--bg-card);
+  stroke: var(--border);
+  stroke-width: 1.5;
+  transition: fill 0.2s, stroke 0.2s, stroke-width 0.2s;
+}
+.diagram-marker text {
+  fill: var(--text-primary);
+  font-family: var(--font-sans);
+  font-size: 11px;
+  font-weight: 700;
+  transition: fill 0.2s;
+}
+.diagram-marker:hover circle, .diagram-marker.active circle {
+  fill: var(--accent-light);
+  stroke: var(--accent);
+  stroke-width: 2px;
+}
+.diagram-marker:hover text, .diagram-marker.active text {
+  fill: var(--accent);
+}
+
+.diagram-tooltip {
+  position: absolute;
+  z-index: 200;
+  width: 280px;
+  background-color: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  box-shadow: 0 10px 30px rgba(17, 24, 39, 0.05), 0 1px 3px rgba(17, 24, 39, 0.02);
+  font-family: var(--font-sans);
+  animation: tipIn 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  overflow: hidden;
+}
+
+@keyframes tipIn {
+  from { opacity: 0; transform: translateY(-8px) scale(0.95); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+.tip-head {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 16px;
+  border-bottom: 1px solid var(--border);
+  background-color: var(--bg-input);
+}
+
+.tip-logo {
+  width: 32px;
+  height: 32px;
+  border-radius: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  overflow: hidden;
+}
+
+.tip-title {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--text-primary);
+  line-height: 1.2;
+}
+
+.tip-tech {
+  font-size: 9.5px;
+  color: var(--text-muted);
+  font-family: var(--font-mono);
+  margin-top: 2px;
+}
+
+.tip-body {
+  padding: 12px 16px;
+  font-size: 11.5px;
+  color: var(--text-secondary);
+  line-height: 1.6;
+}
+
+.tip-body code {
+  background-color: var(--bg-primary);
+  border: 1px solid var(--border);
+  border-radius: 3px;
+  padding: 1px 4px;
+  font-family: var(--font-mono);
+  font-size: 9.5px;
+  color: var(--status-processing);
+}
+
+.tip-close {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  background: none;
+  border: none;
+  font-size: 14px;
+  color: var(--text-muted);
+  cursor: pointer;
+  padding: 4px;
+  border-radius: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: var(--transition-smooth);
+}
+
+.tip-close:hover {
+  background-color: var(--border);
+  color: var(--text-primary);
+}
+
+/* Architecture Black Theme Scope */
+.architecture-black-theme {
+  --bg-primary: #0a0b0d;       /* Darker grey background fallback */
+  --bg-secondary: linear-gradient(180deg, #161b22 0%, #0d0f12 100%); /* Elegant darker gradient for layers */
+  --bg-card: #0d0f12;          /* Deep dark card fill */
+  --bg-input: #161b22;         /* Input/Header dark fill */
+  --text-primary: #f0f6fc;     /* White/Light text */
+  --text-secondary: #8b949e;   /* Gray text */
+  --text-muted: #484f58;       /* Muted gray text */
+  --border: #21262d;           /* Premium darker border */
+  --accent: #58a6ff;           /* Crisp light-blue accent */
+  --accent-light: rgba(88, 166, 255, 0.1);
+  --accent-glow: rgba(88, 166, 255, 0.25);
+  --accent-hover: #79c0ff;
+  
+  --shadow: rgba(0, 0, 0, 0.7);
+  color: #f0f6fc;
+}
+
+/* Light theme overrides inside the diagram SVG canvas and tooltip */
+svg.diagram, .diagram-tooltip {
+  --bg-primary: #ffffff !important;
+  --bg-secondary: #ffffff !important;   /* White diagram canvas background */
+  --bg-card: #ffffff !important;        /* White cards inside diagram */
+  --bg-input: #f3f4f6 !important;       /* Light grey input/badge fills */
+  --text-primary: #000000 !important;   /* Pure black text */
+  --text-secondary: #000000 !important; /* Pure black text */
+  --text-muted: #111827 !important;     /* Pure black/charcoal text */
+  --border: #000000 !important;         /* Pure black borders */
+  --accent: #2563eb !important;
+  --accent-light: #eff6ff !important;
+  color: #000000 !important;
+}
+
+/* Force light-theme badges inside the diagram */
+svg.diagram .diag-badge-green { fill: #f0faf2 !important; stroke: #c3e6cb !important; }
+svg.diagram .diag-badge-green-text { fill: #1a7a4a !important; }
+
+svg.diagram .diag-badge-teal { fill: #e0f4f4 !important; stroke: #80cbc4 !important; }
+svg.diagram .diag-badge-teal-text { fill: #00695c !important; }
+
+svg.diagram .diag-badge-red { fill: #fff5f5 !important; stroke: #e74c3c !important; }
+svg.diagram .diag-badge-red-text { fill: #c0392b !important; }
+
+svg.diagram .diag-badge-orange { fill: #fff8ee !important; stroke: #f5cba7 !important; }
+svg.diagram .diag-badge-orange-text { fill: #b7770d !important; }
+
+svg.diagram .diag-badge-indigo { fill: #eef2ff !important; stroke: #c7d2fe !important; }
+svg.diagram .diag-badge-indigo-text { fill: #4338ca !important; }
+
+svg.diagram .diag-badge-grey { fill: #f2f3f3 !important; stroke: #d5dbdb !important; }
+svg.diagram .diag-badge-grey-text { fill: #16191f !important; }
+
+/* Force light-theme numbering markers */
+svg.diagram .diagram-marker circle {
+  fill: #ffffff !important;
+  stroke: #000000 !important;
+  stroke-width: 1.5px !important;
+}
+svg.diagram .diagram-marker text {
+  fill: #000000 !important;
+}
+svg.diagram .diagram-marker:hover circle, svg.diagram .diagram-marker.active circle {
+  fill: #eff6ff !important;
+  stroke: #2563eb !important;
+  stroke-width: 2px !important;
+}
+svg.diagram .diagram-marker:hover text, svg.diagram .diagram-marker.active text {
+  fill: #2563eb !important;
+}
+
+/* Tooltip light styling overrides */
+.diagram-tooltip {
+  background-color: #ffffff !important;
+  border-color: #000000 !important;
+  color: #000000 !important;
+}
+.diagram-tooltip .tip-head {
+  background-color: #f3f4f6 !important;
+  border-bottom-color: #000000 !important;
+}
+.diagram-tooltip .tip-body {
+  color: #000000 !important;
+}
+.diagram-tooltip .tip-body code {
+  background-color: #f3f4f6 !important;
+  border-color: #d1d5db !important;
+  color: #2563eb !important;
+}
+.diagram-tooltip .tip-close {
+  color: #6b7280 !important;
+}
+.diagram-tooltip .tip-close:hover {
+  background-color: #e5e7eb !important;
+  color: #000000 !important;
+}
+.diagram-tooltip .tip-title {
+  color: #000000 !important;
+}
+.diagram-tooltip .tip-tech {
+  color: #4b5563 !important;
+}
+
+.architecture-diagram-light {
+  background-color: #0b0c0e; /* Deep dark contrast grey background */
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  border-radius: var(--radius-lg);
+  padding: 24px 16px;
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.65);
+}
+
+
+
