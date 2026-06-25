@@ -1,6 +1,6 @@
 // API Client module for Orchestrix Dashboard
 
-const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:80';
+const API_BASE = import.meta.env.VITE_API_URL || '';
 
 export const fetchMetrics = async () => {
   const response = await fetch(`${API_BASE}/metrics/`);

@@ -2,3 +2,4 @@ docs/
 scripts/
 .env
 dashboard/node_modules/
+aws_cred/

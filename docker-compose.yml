@@ -135,6 +135,13 @@ services:
       redis:
         condition: service_healthy
 
+  dashboard:
+    build:
+      context: ./dashboard
+      dockerfile: Dockerfile
+    container_name: orchestrix-dashboard
+    restart: always
+
   nginx:
     image: nginx:1.25-alpine
     container_name: orchestrix-nginx
@@ -145,6 +152,7 @@ services:
     depends_on:
       - api1
       - api2
+      - dashboard
 
 volumes:
   postgres_data:
