@@ -10,35 +10,22 @@ The following diagram illustrates the flow of client requests, load balancing, m
 
 ```mermaid
 graph TD
-    %% Clients
-    Client([Client / Web Browser]) -->|HTTP / HTTPS| LB[Nginx Load Balancer / Reverse Proxy]
-
-    %% Load Balancer Routing
-    LB -->|Port 80/443: "/"| Dash[React Dashboard Container]
-    LB -->|Port 80/443: "/tasks" & "/metrics"| API_Upstream{API Upstream Group}
-
-    %% API Upstream
-    API_Upstream -->|Round-Robin| API1[FastAPI Server: api1]
-    API_Upstream -->|Round-Robin| API2[FastAPI Server: api2]
-
-    %% Shared State / Queue
-    API1 -->|Store Task Status| DB[(PostgreSQL Database)]
+    Client["Client / Web Browser"] -->|HTTP and HTTPS| LB["Nginx Load Balancer / Reverse Proxy"]
+    LB -->|Port 80/443: Root Path| Dash["React Dashboard Container"]
+    LB -->|Port 80/443: /tasks and /metrics| API_Upstream{"API Upstream Group"}
+    API_Upstream -->|Round-Robin| API1["FastAPI Server: api1"]
+    API_Upstream -->|Round-Robin| API2["FastAPI Server: api2"]
+    API1 -->|Store Task Status| DB["PostgreSQL Database"]
     API2 -->|Store Task Status| DB
-    API1 -->|Queue Jobs| Cache[(Redis Broker)]
+    API1 -->|Queue Jobs| Cache["Redis Broker"]
     API2 -->|Queue Jobs| Cache
-
-    %% Worker Group
-    Cache -->|Pull Task| W1[Distributed Worker: worker1]
-    Cache -->|Pull Task| W2[Distributed Worker: worker2]
-    Cache -->|Pull Task| W3[Distributed Worker: worker3]
-
-    %% Database Writes
-    W1 -->|Update Progress & State| DB
-    W2 -->|Update Progress & State| DB
-    W3 -->|Update Progress & State| DB
-
-    %% Watchdog
-    WD[Watchdog Process] -->|Ping Heartbeats| Cache
+    Cache -->|Pull Task| W1["Distributed Worker: worker1"]
+    Cache -->|Pull Task| W2["Distributed Worker: worker2"]
+    Cache -->|Pull Task| W3["Distributed Worker: worker3"]
+    W1 -->|Update Progress and State| DB
+    W2 -->|Update Progress and State| DB
+    W3 -->|Update Progress and State| DB
+    WD["Watchdog Process"] -->|Ping Heartbeats| Cache
     WD -->|Revoke Orphaned Tasks| DB
 ```
 
@@ -85,7 +72,6 @@ Ensure you have the following installed on your machine:
    ```
 4. Access the dashboard:
    - Dashboard UI: `http://localhost`
-   - API Docs (Swagger): `http://localhost:8001/docs`
 
 ---
 
